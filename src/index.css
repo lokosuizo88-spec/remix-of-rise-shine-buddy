@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
+
+@layer base {
+  :root {
+    --background: 270 50% 8%;
+    --foreground: 0 0% 98%;
+
+    --card: 270 40% 14%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 270 40% 14%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 280 80% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 30 95% 60%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 270 30% 20%;
+    --muted-foreground: 270 15% 65%;
+
+    --accent: 340 85% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 270 30% 25%;
+    --input: 270 30% 25%;
+    --ring: 280 80% 60%;
+
+    --radius: 1rem;
+
+    --success: 150 70% 45%;
+    --warning: 45 95% 55%;
+    --fun-pink: 340 85% 60%;
+    --fun-orange: 30 95% 60%;
+    --fun-purple: 280 80% 60%;
+    --fun-blue: 210 90% 60%;
+    --fun-green: 150 70% 50%;
+    --fun-yellow: 45 95% 60%;
+
+    --gradient-party: linear-gradient(135deg, hsl(280 80% 60%), hsl(340 85% 60%), hsl(30 95% 60%));
+    --gradient-sunset: linear-gradient(135deg, hsl(280 80% 50%), hsl(340 85% 55%));
+    --gradient-fire: linear-gradient(135deg, hsl(30 95% 55%), hsl(0 84% 60%));
+
+    --sidebar-background: 270 40% 12%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 280 80% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 270 30% 20%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 270 30% 25%;
+    --sidebar-ring: 280 80% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Fredoka', sans-serif;
+  }
+}
+
+@layer utilities {
+  .gradient-party {
+    background: var(--gradient-party);
+  }
+  .gradient-sunset {
+    background: var(--gradient-sunset);
+  }
+  .gradient-fire {
+    background: var(--gradient-fire);
+  }
+  .text-gradient-party {
+    background: var(--gradient-party);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+@keyframes bounce-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px hsl(280 80% 60% / 0.3); }
+  50% { box-shadow: 0 0 40px hsl(280 80% 60% / 0.6); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+@keyframes confetti-fall {
+  0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+@keyframes alarm-ring {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  15% { transform: rotate(15deg) scale(1.1); }
+  30% { transform: rotate(-15deg) scale(1.1); }
+  45% { transform: rotate(10deg) scale(1.05); }
+  60% { transform: rotate(-10deg) scale(1.05); }
+  75% { transform: rotate(5deg) scale(1); }
+}
