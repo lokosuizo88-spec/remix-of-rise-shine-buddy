@@ -105,7 +105,11 @@ export function useAlarms() {
 
   const addAlarm = useCallback((alarm: Omit<Alarm, 'id'>) => {
     const newAlarm: Alarm = { ...alarm, id: crypto.randomUUID() };
-    setAlarms(prev => [...prev, newAlarm]);
+    setAlarms(prev => {
+      const updated = [...prev, newAlarm];
+      localStorage.setItem(ALARMS_KEY, JSON.stringify(updated));
+      return updated;
+    });
     return newAlarm;
   }, []);
 
