@@ -228,6 +228,7 @@ export function useAlarms() {
   return {
     alarms,
     alarmState,
+    setAlarmState,
     stats,
     addAlarm,
     updateAlarm,
