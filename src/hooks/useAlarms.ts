@@ -105,25 +105,33 @@ export function useAlarms() {
 
   const addAlarm = useCallback((alarm: Omit<Alarm, 'id'>) => {
     const newAlarm: Alarm = { ...alarm, id: crypto.randomUUID() };
-    setAlarms(prev => {
-      const updated = [...prev, newAlarm];
-      localStorage.setItem(ALARMS_KEY, JSON.stringify(updated));
-      return updated;
-    });
+    const current = loadJSON<Alarm[]>(ALARMS_KEY, []);
+    const updated = [...current, newAlarm];
+    localStorage.setItem(ALARMS_KEY, JSON.stringify(updated));
+    setAlarms(updated);
     return newAlarm;
   }, []);
 
   const updateAlarm = useCallback((id: string, updates: Partial<Alarm>) => {
-    setAlarms(prev => prev.map(a => (a.id === id ? { ...a, ...updates } : a)));
+    const current = loadJSON<Alarm[]>(ALARMS_KEY, []);
+    const updated = current.map(a => (a.id === id ? { ...a, ...updates } : a));
+    localStorage.setItem(ALARMS_KEY, JSON.stringify(updated));
+    setAlarms(updated);
   }, []);
 
   const deleteAlarm = useCallback((id: string) => {
     cancelAlarmNotification(id);
-    setAlarms(prev => prev.filter(a => a.id !== id));
+    const current = loadJSON<Alarm[]>(ALARMS_KEY, []);
+    const updated = current.filter(a => a.id !== id);
+    localStorage.setItem(ALARMS_KEY, JSON.stringify(updated));
+    setAlarms(updated);
   }, []);
 
   const toggleAlarm = useCallback((id: string) => {
-    setAlarms(prev => prev.map(a => (a.id === id ? { ...a, enabled: !a.enabled } : a)));
+    const current = loadJSON<Alarm[]>(ALARMS_KEY, []);
+    const updated = current.map(a => (a.id === id ? { ...a, enabled: !a.enabled } : a));
+    localStorage.setItem(ALARMS_KEY, JSON.stringify(updated));
+    setAlarms(updated);
   }, []);
 
   const triggerAlarm = useCallback((alarm: Alarm) => {
