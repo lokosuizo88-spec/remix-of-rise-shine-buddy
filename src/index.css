@@ -1,51 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 260 20% 97%;
+    --foreground: 260 30% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 260 30% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 238 83% 66%;
+    --popover-foreground: 260 30% 10%;
+    --primary: 262 80% 55%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 238 83% 66%;
+    --secondary: 260 15% 92%;
+    --secondary-foreground: 260 30% 20%;
+    --muted: 260 15% 93%;
+    --muted-foreground: 260 10% 50%;
+    --accent: 262 60% 90%;
+    --accent-foreground: 262 80% 40%;
+    --destructive: 0 80% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 260 15% 88%;
+    --input: 260 15% 88%;
+    --ring: 262 80% 55%;
     --radius: 0.75rem;
+    --success: 142 70% 45%;
+    --warning: 38 92% 50%;
+    --fun-pink: 340 82% 65%;
+    --fun-orange: 25 95% 60%;
+    --fun-purple: 262 80% 55%;
+    --fun-blue: 210 90% 60%;
+    --fun-green: 142 70% 50%;
+    --fun-yellow: 45 95% 55%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 238 83% 66%;
+    --background: 260 30% 8%;
+    --foreground: 260 10% 95%;
+    --card: 260 25% 12%;
+    --card-foreground: 260 10% 95%;
+    --popover: 260 25% 12%;
+    --popover-foreground: 260 10% 95%;
+    --primary: 262 80% 60%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 238 83% 66%;
+    --secondary: 260 20% 18%;
+    --secondary-foreground: 260 10% 90%;
+    --muted: 260 20% 18%;
+    --muted-foreground: 260 10% 55%;
+    --accent: 262 40% 25%;
+    --accent-foreground: 262 80% 75%;
+    --destructive: 0 70% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 260 20% 20%;
+    --input: 260 20% 20%;
+    --ring: 262 80% 60%;
+    --success: 142 70% 45%;
+    --warning: 38 92% 50%;
+    --fun-pink: 340 82% 65%;
+    --fun-orange: 25 95% 60%;
+    --fun-purple: 262 80% 60%;
+    --fun-blue: 210 90% 60%;
+    --fun-green: 142 70% 50%;
+    --fun-yellow: 45 95% 55%;
   }
 }
 
@@ -55,76 +73,30 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Nunito', sans-serif;
     overflow-x: hidden;
   }
   h1, h2, h3 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Fredoka', sans-serif;
   }
 }
 
-/* PDF Reader */
-.pdf-canvas-container {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  background: #525659;
-  min-height: 100%;
-  padding: 8px;
+/* Gradient party - used for buttons, FAB, highlights */
+.gradient-party {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--fun-pink)),
+    hsl(var(--fun-orange)),
+    hsl(var(--fun-purple)),
+    hsl(var(--fun-blue))
+  );
+  background-size: 300% 300%;
+  animation: gradient-shift 4s ease infinite;
 }
 
-.pdf-canvas-container canvas {
-  max-width: 100%;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-  display: block;
-}
-
-/* EPUB Reader */
-#epub-viewer {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-#epub-viewer iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-
-/* Reader toolbar */
-.reader-toolbar {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.reader-toolbar.hidden {
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-100%);
-}
-
-/* Book card */
-.book-cover {
-  aspect-ratio: 2/3;
-  object-fit: cover;
-  border-radius: 4px;
-  box-shadow: 3px 3px 10px rgba(0,0,0,0.3);
-}
-
-/* Progress bar */
-.reading-progress-bar {
-  height: 3px;
-  background: hsl(var(--primary));
-  transition: width 0.3s ease;
-}
-
-/* Bottom nav */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 /* Scrollbar */
@@ -134,3 +106,7 @@
 
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Safe area for mobile */
+.pt-safe-top { padding-top: env(safe-area-inset-top, 0px); }
+.pb-safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
