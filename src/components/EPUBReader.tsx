@@ -81,11 +81,12 @@ export default function EPUBReader({ fileData, settings, onProgress, initialCfi,
           if (destroyed) return;
           const cfi = loc.start?.cfi || '';
           setCurrentCfi(cfi);
-          book.locations.percentageFromCfi(cfi).then((pct: number) => {
-            const progress = Math.round(pct * 100);
+          try {
+            const pct = book.locations.percentageFromCfi(cfi);
+            const progress = Math.round((typeof pct === 'number' ? pct : 0) * 100);
             setCurrentProgress(progress);
             onProgress(progress, cfi);
-          }).catch(() => {});
+          } catch {}
         });
 
         // Enable text selection and highlighting
