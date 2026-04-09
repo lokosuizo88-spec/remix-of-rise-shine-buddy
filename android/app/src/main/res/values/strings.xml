@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">WakeUp!</string>
+    <string name="title_activity_main">WakeUp!</string>
+    <string name="package_name">com.riseshinebuddy.app</string>
+    <string name="custom_url_scheme">com.riseshinebuddy.app</string>
+</resources>

@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.088cda14e3c949278f46a75afe9cbb86',
+  appId: 'com.riseshinebuddy.app',
   appName: 'WakeUp!',
   webDir: 'dist',
   plugins: {
