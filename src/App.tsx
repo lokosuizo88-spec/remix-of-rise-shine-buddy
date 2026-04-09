@@ -1,38 +1,24 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import Library from "./pages/Library";
-import Search from "./pages/Search";
-import Reader from "./pages/Reader";
-import Upload from "./pages/Upload";
-import Favorites from "./pages/Favorites";
-import Downloads from "./pages/Downloads";
-import Settings from "./pages/Settings";
+import AlarmHome from "./pages/AlarmHome";
+import CreateAlarm from "./pages/CreateAlarm";
+import EditAlarm from "./pages/EditAlarm";
+import AlarmRinging from "./pages/AlarmRinging";
+import Victory from "./pages/Victory";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
-
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Library />} />
-          <Route path="/search" element={<Search />} />
-          <Route path="/reader/:bookId" element={<Reader />} />
-          <Route path="/upload" element={<Upload />} />
-          <Route path="/favorites" element={<Favorites />} />
-          <Route path="/downloads" element={<Downloads />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <BrowserRouter>
+    <Toaster />
+    <Routes>
+      <Route path="/" element={<AlarmHome />} />
+      <Route path="/alarm/create" element={<CreateAlarm />} />
+      <Route path="/alarm/edit/:id" element={<EditAlarm />} />
+      <Route path="/alarm/ringing" element={<AlarmRinging />} />
+      <Route path="/victory" element={<Victory />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  </BrowserRouter>
 );
 
 export default App;
