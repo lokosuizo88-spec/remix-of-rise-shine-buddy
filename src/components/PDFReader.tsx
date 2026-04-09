@@ -89,7 +89,7 @@ export default function PDFReader({ fileData, settings, onProgress, initialPage 
           const c = document.createElement('canvas');
           c.width = vp.width;
           c.height = vp.height;
-          await p.render({ canvasContext: c.getContext('2d')!, viewport: vp }).promise;
+          await p.render({ canvasContext: c.getContext('2d')!, viewport: vp, canvas: c } as any).promise;
           thumbs.push(c.toDataURL());
         }
         if (!destroyed) setThumbnails(thumbs);
