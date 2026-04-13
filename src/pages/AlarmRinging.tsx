@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAlarms } from '@/hooks/useAlarms';
 import { useAlarmSound } from '@/hooks/useAlarmSound';
@@ -20,30 +20,50 @@ const ESCAPE_TAUNTS = [
   'Error... ¡Ahora sufre! 👹',
 ];
 
+function pickRandomChallenge(exclude?: ChallengeType): ChallengeType {
+  const options = exclude ? CHALLENGE_TYPES.filter(t => t !== exclude) : CHALLENGE_TYPES;
+  return options[Math.floor(Math.random() * options.length)];
+}
+
 export default function AlarmRinging() {
   const navigate = useNavigate();
   const { alarms, alarmState, setAlarmState, recordWakeup } = useAlarms();
   const [startTime] = useState(Date.now());
   const [challengeKey, setChallengeKey] = useState(0);
   const [escapeMessage, setEscapeMessage] = useState('');
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const lastChallengeRef = useRef<ChallengeType | undefined>(undefined);
+
+  // Update clock
+  useEffect(() => {
+    const t = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
 
   // Determine which alarm is ringing
   const ringingAlarm = useMemo(() => {
-    const now = new Date();
-    const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    return alarms.find(a => a.enabled && a.time === hhmm) || alarms.find(a => a.enabled) || null;
+    const storedId = localStorage.getItem('wakeup_ringing_alarm_id');
+    if (storedId) {
+      const found = alarms.find(a => a.id === storedId);
+      if (found) return found;
+    }
+    return alarms.find(a => a.enabled) || null;
   }, [alarms]);
 
   const currentDifficulty = alarmState.currentDifficulty;
+
+  // Challenge type - properly handles random with no repeats
   const challengeType = useMemo(() => {
     if (ringingAlarm?.challengeType && ringingAlarm.challengeType !== 'random') {
       return ringingAlarm.challengeType;
     }
-    return CHALLENGE_TYPES[Math.floor(Math.random() * CHALLENGE_TYPES.length)];
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    const picked = pickRandomChallenge(lastChallengeRef.current);
+    lastChallengeRef.current = picked;
+    return picked;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [challengeKey, ringingAlarm?.challengeType]);
 
-  // Sound
+  // Sound - plays continuously
   useAlarmSound({
     isPlaying: true,
     soundType: ringingAlarm?.sound || 'sirena',
@@ -67,28 +87,36 @@ export default function AlarmRinging() {
     onEscapeDetected: handleEscapeDetected,
   });
 
-  // Set ringing state on mount
+  // Set ringing state on mount, persist so anti-cheat detects app reopen
   useEffect(() => {
     setAlarmState(prev => ({
       ...prev,
       isRinging: true,
       currentDifficulty: ringingAlarm?.difficulty || prev.currentDifficulty,
     }));
+
+    // Mark ringing in localStorage so if app is closed and reopened, we come back
+    localStorage.setItem('wakeup_is_ringing', 'true');
+
     return () => {
       setAlarmState(prev => ({ ...prev, isRinging: false, escapedCount: 0 }));
+      localStorage.removeItem('wakeup_is_ringing');
+      localStorage.removeItem('wakeup_ringing_alarm_id');
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleComplete = useCallback(() => {
     const elapsed = Math.round((Date.now() - startTime) / 1000);
     recordWakeup(elapsed);
     setAlarmState(prev => ({ ...prev, isRinging: false }));
+    localStorage.removeItem('wakeup_is_ringing');
+    localStorage.removeItem('wakeup_ringing_alarm_id');
     navigate('/victory');
   }, [startTime, recordWakeup, setAlarmState, navigate]);
 
   const handleFail = useCallback(() => {
-    // Challenge handles its own retry
+    // Challenge handles its own retry internally
   }, []);
 
   const ChallengeComponent = {
@@ -109,7 +137,7 @@ export default function AlarmRinging() {
 
       {/* Time */}
       <h1 className="text-5xl font-display font-bold mb-2">
-        {new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+        {currentTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
       </h1>
 
       {ringingAlarm?.label && (
