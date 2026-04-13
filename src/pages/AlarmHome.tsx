@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAlarms, Alarm } from '@/hooks/useAlarms';
+import { useAlarmMonitor } from '@/hooks/useAlarmMonitor';
 import { Bell, Plus, Trash2, Clock } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 
@@ -45,6 +46,16 @@ export default function AlarmHome() {
   const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [phrase] = useState(() => MOTIVATIONAL[Math.floor(Math.random() * MOTIVATIONAL.length)]);
+
+  // Monitor alarms and auto-navigate to ringing when it's time
+  useAlarmMonitor(alarms);
+
+  // If app was closed while ringing, redirect back
+  useEffect(() => {
+    if (localStorage.getItem('wakeup_is_ringing') === 'true') {
+      navigate('/alarm/ringing');
+    }
+  }, [navigate]);
 
   useEffect(() => {
     const t = setInterval(() => setCurrentTime(new Date()), 1000);

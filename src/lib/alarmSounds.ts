@@ -9,6 +9,8 @@ export const SOUND_OPTIONS: { value: SoundType; label: string; emoji: string }[]
 ];
 
 let audioCtx: AudioContext | null = null;
+let activeNodes: AudioScheduledSourceNode[] = [];
+let activeMasterGain: GainNode | null = null;
 
 function getCtx(): AudioContext {
   if (!audioCtx) audioCtx = new AudioContext();
@@ -25,27 +27,40 @@ function createNoise(ctx: AudioContext, duration: number, gain: number): AudioBu
   return src;
 }
 
-export function playSound(type: SoundType, volume: number = 1): () => void {
+export function stopAllSounds() {
+  activeNodes.forEach(n => { try { n.stop(); } catch {} });
+  activeNodes = [];
+  if (activeMasterGain) {
+    try { activeMasterGain.disconnect(); } catch {}
+    activeMasterGain = null;
+  }
+}
+
+export function playSound(type: SoundType, volume: number = 1): void {
+  // Stop previous sounds before playing new ones
+  stopAllSounds();
+
   const ctx = getCtx();
   const masterGain = ctx.createGain();
   masterGain.gain.value = volume;
   masterGain.connect(ctx.destination);
+  activeMasterGain = masterGain;
 
   const nodes: AudioScheduledSourceNode[] = [];
   const now = ctx.currentTime;
 
   switch (type) {
     case 'despertador': {
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < 6; i++) {
         const osc = ctx.createOscillator();
         osc.type = 'square';
         osc.frequency.value = 880;
         const g = ctx.createGain();
-        g.gain.setValueAtTime(0.5, now + i * 0.3);
-        g.gain.exponentialRampToValueAtTime(0.01, now + i * 0.3 + 0.15);
+        g.gain.setValueAtTime(0.6, now + i * 0.25);
+        g.gain.exponentialRampToValueAtTime(0.01, now + i * 0.25 + 0.12);
         osc.connect(g).connect(masterGain);
-        osc.start(now + i * 0.3);
-        osc.stop(now + i * 0.3 + 0.15);
+        osc.start(now + i * 0.25);
+        osc.stop(now + i * 0.25 + 0.12);
         nodes.push(osc);
       }
       break;
@@ -57,19 +72,20 @@ export function playSound(type: SoundType, volume: number = 1): () => void {
       osc.frequency.linearRampToValueAtTime(1200, now + 0.5);
       osc.frequency.linearRampToValueAtTime(400, now + 1.0);
       osc.frequency.linearRampToValueAtTime(1200, now + 1.5);
+      osc.frequency.linearRampToValueAtTime(400, now + 2.0);
       const g = ctx.createGain();
-      g.gain.value = 0.4;
+      g.gain.value = 0.5;
       osc.connect(g).connect(masterGain);
       osc.start(now);
-      osc.stop(now + 1.8);
+      osc.stop(now + 2.0);
       nodes.push(osc);
 
-      const noise = createNoise(ctx, 1.8, 0.05);
+      const noise = createNoise(ctx, 2.0, 0.05);
       const ng = ctx.createGain();
       ng.gain.value = 0.15;
       noise.connect(ng).connect(masterGain);
       noise.start(now);
-      noise.stop(now + 1.8);
+      noise.stop(now + 2.0);
       nodes.push(noise);
       break;
     }
@@ -78,28 +94,28 @@ export function playSound(type: SoundType, volume: number = 1): () => void {
       osc.type = 'sawtooth';
       osc.frequency.value = 80;
       const g = ctx.createGain();
-      g.gain.value = 0.3;
+      g.gain.value = 0.4;
       osc.connect(g).connect(masterGain);
       osc.start(now);
-      osc.stop(now + 1.5);
+      osc.stop(now + 2.0);
       nodes.push(osc);
 
-      const noise = createNoise(ctx, 1.5, 0.15);
+      const noise = createNoise(ctx, 2.0, 0.2);
       const ng = ctx.createGain();
-      ng.gain.value = 0.4;
+      ng.gain.value = 0.5;
       noise.connect(ng).connect(masterGain);
       noise.start(now);
-      noise.stop(now + 1.5);
+      noise.stop(now + 2.0);
       nodes.push(noise);
 
       const osc2 = ctx.createOscillator();
       osc2.type = 'square';
       osc2.frequency.value = 40;
       const g2 = ctx.createGain();
-      g2.gain.value = 0.2;
+      g2.gain.value = 0.25;
       osc2.connect(g2).connect(masterGain);
       osc2.start(now);
-      osc2.stop(now + 1.5);
+      osc2.stop(now + 2.0);
       nodes.push(osc2);
       break;
     }
@@ -108,7 +124,7 @@ export function playSound(type: SoundType, volume: number = 1): () => void {
       osc.type = 'sawtooth';
       osc.frequency.value = 20;
       const g = ctx.createGain();
-      g.gain.value = 0.5;
+      g.gain.value = 0.6;
       const panner = ctx.createStereoPanner();
       panner.pan.setValueAtTime(-1, now);
       panner.pan.linearRampToValueAtTime(1, now + 1);
@@ -118,9 +134,9 @@ export function playSound(type: SoundType, volume: number = 1): () => void {
       osc.stop(now + 2);
       nodes.push(osc);
 
-      const noise = createNoise(ctx, 2, 0.1);
+      const noise = createNoise(ctx, 2, 0.12);
       const ng = ctx.createGain();
-      ng.gain.value = 0.2;
+      ng.gain.value = 0.25;
       noise.connect(ng).connect(masterGain);
       noise.start(now);
       noise.stop(now + 2);
@@ -131,21 +147,20 @@ export function playSound(type: SoundType, volume: number = 1): () => void {
       const osc = ctx.createOscillator();
       osc.type = 'square';
       osc.frequency.setValueAtTime(600, now);
-      osc.frequency.linearRampToValueAtTime(800, now + 0.3);
+      osc.frequency.linearRampToValueAtTime(900, now + 0.3);
       osc.frequency.setValueAtTime(600, now + 0.6);
-      osc.frequency.linearRampToValueAtTime(800, now + 0.9);
+      osc.frequency.linearRampToValueAtTime(900, now + 0.9);
+      osc.frequency.setValueAtTime(600, now + 1.2);
+      osc.frequency.linearRampToValueAtTime(900, now + 1.5);
       const g = ctx.createGain();
-      g.gain.value = 0.35;
+      g.gain.value = 0.45;
       osc.connect(g).connect(masterGain);
       osc.start(now);
-      osc.stop(now + 1.5);
+      osc.stop(now + 2.0);
       nodes.push(osc);
       break;
     }
   }
 
-  return () => {
-    nodes.forEach(n => { try { n.stop(); } catch {} });
-    masterGain.disconnect();
-  };
+  activeNodes = nodes;
 }
