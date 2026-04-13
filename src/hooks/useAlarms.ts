@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AlarmState, DifficultyLevel, ChallengeType } from '@/types/alarm';
 import { SoundType } from '@/lib/alarmSounds';
+import { syncAlarmsToNative } from '@/lib/nativeAlarms';
 
 const ALARMS_KEY = 'wakeup_alarms';
 const STATE_KEY = 'wakeup_alarm_state';
