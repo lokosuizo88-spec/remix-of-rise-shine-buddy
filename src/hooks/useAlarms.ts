@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AlarmState, DifficultyLevel, ChallengeType } from '@/types/alarm';
 import { SoundType } from '@/lib/alarmSounds';
+import { syncAlarmsToNative } from '@/lib/nativeAlarms';
 
 const ALARMS_KEY = 'wakeup_alarms';
 const STATE_KEY = 'wakeup_alarm_state';
@@ -58,6 +59,7 @@ export function useAlarms() {
     const updated = [...current, newAlarm];
     localStorage.setItem(ALARMS_KEY, JSON.stringify(updated));
     setAlarms(updated);
+    syncAlarmsToNative(updated);
     return newAlarm;
   }, []);
 
@@ -66,6 +68,7 @@ export function useAlarms() {
     const updated = current.map(a => a.id === id ? { ...a, ...changes } : a);
     localStorage.setItem(ALARMS_KEY, JSON.stringify(updated));
     setAlarms(updated);
+    syncAlarmsToNative(updated);
   }, []);
 
   const deleteAlarm = useCallback((id: string) => {
@@ -73,6 +76,7 @@ export function useAlarms() {
     const updated = current.filter(a => a.id !== id);
     localStorage.setItem(ALARMS_KEY, JSON.stringify(updated));
     setAlarms(updated);
+    syncAlarmsToNative(updated);
   }, []);
 
   const toggleAlarm = useCallback((id: string) => {
@@ -80,6 +84,7 @@ export function useAlarms() {
     const updated = current.map(a => a.id === id ? { ...a, enabled: !a.enabled } : a);
     localStorage.setItem(ALARMS_KEY, JSON.stringify(updated));
     setAlarms(updated);
+    syncAlarmsToNative(updated);
   }, []);
 
   const recordWakeup = useCallback((timeToDisable: number) => {
