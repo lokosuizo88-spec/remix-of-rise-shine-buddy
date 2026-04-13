@@ -58,6 +58,7 @@ export function useAlarms() {
     const updated = [...current, newAlarm];
     localStorage.setItem(ALARMS_KEY, JSON.stringify(updated));
     setAlarms(updated);
+    syncAlarmsToNative(updated);
     return newAlarm;
   }, []);
 
@@ -66,6 +67,7 @@ export function useAlarms() {
     const updated = current.map(a => a.id === id ? { ...a, ...changes } : a);
     localStorage.setItem(ALARMS_KEY, JSON.stringify(updated));
     setAlarms(updated);
+    syncAlarmsToNative(updated);
   }, []);
 
   const deleteAlarm = useCallback((id: string) => {
@@ -73,6 +75,7 @@ export function useAlarms() {
     const updated = current.filter(a => a.id !== id);
     localStorage.setItem(ALARMS_KEY, JSON.stringify(updated));
     setAlarms(updated);
+    syncAlarmsToNative(updated);
   }, []);
 
   const toggleAlarm = useCallback((id: string) => {
@@ -80,6 +83,7 @@ export function useAlarms() {
     const updated = current.map(a => a.id === id ? { ...a, enabled: !a.enabled } : a);
     localStorage.setItem(ALARMS_KEY, JSON.stringify(updated));
     setAlarms(updated);
+    syncAlarmsToNative(updated);
   }, []);
 
   const recordWakeup = useCallback((timeToDisable: number) => {
