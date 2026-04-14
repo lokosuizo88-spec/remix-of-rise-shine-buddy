@@ -180,15 +180,35 @@ export default function AlarmRinging() {
         </span>
       </div>
 
+      {/* Snooze feedback */}
+      {snoozed && (
+        <div className="mb-4 px-4 py-2 rounded-xl bg-primary/20 text-primary text-sm font-bold animate-pulse">
+          💤 Snooze: {snoozeMinutes} min...
+        </div>
+      )}
+
       {/* Challenge */}
-      <div className="w-full max-w-md bg-card rounded-3xl border border-border shadow-lg">
-        <ChallengeComponent
-          key={challengeKey}
-          difficulty={currentDifficulty}
-          onComplete={handleComplete}
-          onFail={handleFail}
-        />
-      </div>
+      {!snoozed && (
+        <div className="w-full max-w-md bg-card rounded-3xl border border-border shadow-lg">
+          <ChallengeComponent
+            key={challengeKey}
+            difficulty={currentDifficulty}
+            onComplete={handleComplete}
+            onFail={handleFail}
+          />
+        </div>
+      )}
+
+      {/* Snooze button */}
+      {!snoozed && alarmState.escapedCount === 0 && (
+        <button
+          onClick={handleSnooze}
+          className="mt-6 flex items-center gap-2 px-6 py-3 rounded-full bg-muted text-muted-foreground text-sm font-medium hover:bg-muted/80 transition-colors"
+        >
+          <Clock size={16} />
+          💤 Snooze ({snoozeMinutes} min)
+        </button>
+      )}
     </div>
   );
 }
