@@ -33,6 +33,8 @@ export default function AlarmRinging() {
   const [startTime] = useState(Date.now());
   const [challengeKey, setChallengeKey] = useState(0);
   const [escapeMessage, setEscapeMessage] = useState('');
+  const [snoozed, setSnoozed] = useState(false);
+  const [snoozeMinutes] = useState(5);
   const [currentTime, setCurrentTime] = useState(new Date());
   const lastChallengeRef = useRef<ChallengeType | undefined>(undefined);
 
