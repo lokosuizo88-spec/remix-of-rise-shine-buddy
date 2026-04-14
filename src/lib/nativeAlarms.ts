@@ -156,6 +156,40 @@ export async function cancelAllNativeAlarms() {
 }
 
 /**
+ * Schedule a snooze notification after N minutes
+ */
+export async function scheduleSnooze(alarmId: string, minutes: number = 5) {
+  if (!Capacitor.isNativePlatform()) {
+    // Web fallback: use setTimeout
+    localStorage.setItem('wakeup_snooze_until', String(Date.now() + minutes * 60000));
+    localStorage.setItem('wakeup_snooze_alarm_id', alarmId);
+    return;
+  }
+
+  const snoozeTime = new Date(Date.now() + minutes * 60000);
+  try {
+    await LocalNotifications.schedule({
+      notifications: [{
+        id: hashId('snooze-' + alarmId),
+        title: '⏰ ¡DESPIERTA! (Snooze)',
+        body: `¡Se acabó el descanso de ${minutes} min! 💪`,
+        schedule: {
+          at: snoozeTime,
+          allowWhileIdle: true,
+        },
+        sound: 'alarm.wav',
+        channelId: NOTIFICATION_CHANNEL_ID,
+        actionTypeId: 'ALARM_ACTION',
+        extra: { alarmId },
+      }],
+    });
+    console.log(`Snooze scheduled for ${minutes} min`);
+  } catch (e) {
+    console.error('Failed to schedule snooze:', e);
+  }
+}
+
+/**
  * Generate a stable numeric ID from a string
  */
 function hashId(str: string): number {

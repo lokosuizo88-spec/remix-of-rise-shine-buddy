@@ -8,7 +8,9 @@ import { MathChallenge } from '@/components/challenges/MathChallenge';
 import { TypingChallenge } from '@/components/challenges/TypingChallenge';
 import { PatternChallenge } from '@/components/challenges/PatternChallenge';
 import { SimonChallenge } from '@/components/challenges/SimonChallenge';
-import { Bell } from 'lucide-react';
+import { Bell, Clock } from 'lucide-react';
+import { scheduleSnooze } from '@/lib/nativeAlarms';
+import { stopAllSounds } from '@/lib/alarmSounds';
 
 const CHALLENGE_TYPES: ChallengeType[] = ['math', 'typing', 'pattern', 'simon'];
 
