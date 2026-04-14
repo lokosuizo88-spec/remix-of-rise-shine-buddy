@@ -123,6 +123,17 @@ export default function AlarmRinging() {
     // Challenge handles its own retry internally
   }, []);
 
+  const handleSnooze = useCallback(() => {
+    const alarmId = ringingAlarm?.id || 'unknown';
+    stopAllSounds();
+    scheduleSnooze(alarmId, snoozeMinutes);
+    setAlarmState(prev => ({ ...prev, isRinging: false }));
+    localStorage.removeItem('wakeup_is_ringing');
+    setSnoozed(true);
+    // Navigate home after brief delay
+    setTimeout(() => navigate('/'), 1500);
+  }, [ringingAlarm, snoozeMinutes, setAlarmState, navigate]);
+
   const ChallengeComponent = {
     math: MathChallenge,
     typing: TypingChallenge,
