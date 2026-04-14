@@ -21,6 +21,19 @@ export function useAlarmMonitor(alarms: Alarm[]) {
       const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
       const today = now.getDay(); // 0=Sun
 
+      // Check snooze (web fallback)
+      const snoozeUntil = localStorage.getItem('wakeup_snooze_until');
+      if (snoozeUntil && Date.now() >= Number(snoozeUntil)) {
+        localStorage.removeItem('wakeup_snooze_until');
+        const snoozeAlarmId = localStorage.getItem('wakeup_snooze_alarm_id');
+        if (snoozeAlarmId) {
+          localStorage.setItem('wakeup_ringing_alarm_id', snoozeAlarmId);
+          localStorage.removeItem('wakeup_snooze_alarm_id');
+        }
+        navigate('/alarm/ringing');
+        return;
+      }
+
       // Prevent re-triggering same minute
       const triggerKey = `${hhmm}-${now.toDateString()}`;
       if (lastTriggeredRef.current === triggerKey) return;
@@ -28,14 +41,12 @@ export function useAlarmMonitor(alarms: Alarm[]) {
       const match = alarms.find(a => {
         if (!a.enabled) return false;
         if (a.time !== hhmm) return false;
-        // If days are set, check if today is included
         if (a.days.length > 0 && !a.days.includes(today)) return false;
         return true;
       });
 
       if (match) {
         lastTriggeredRef.current = triggerKey;
-        // Store which alarm is ringing
         localStorage.setItem('wakeup_ringing_alarm_id', match.id);
         navigate('/alarm/ringing');
       }
