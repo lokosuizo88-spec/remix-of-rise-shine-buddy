@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { SoundType, playSound, stopAllSounds } from '@/lib/alarmSounds';
+import { SoundType, playSound, stopAllSounds, setVolume } from '@/lib/alarmSounds';
 
 interface UseAlarmSoundOptions {
   isPlaying: boolean;
@@ -8,33 +8,44 @@ interface UseAlarmSoundOptions {
 
 export function useAlarmSound({ isPlaying, soundType }: UseAlarmSoundOptions) {
   const intervalRef = useRef<number>();
-  const volumeRef = useRef(0.3);
   const startTimeRef = useRef(0);
 
   useEffect(() => {
     if (!isPlaying) {
       stopAllSounds();
       if (intervalRef.current) clearInterval(intervalRef.current);
-      volumeRef.current = 0.3;
       return;
     }
 
     startTimeRef.current = Date.now();
-    volumeRef.current = 0.3;
 
-    const play = () => {
+    // Start playing with initial volume
+    playSound(soundType, 0.3);
+
+    // Ramp volume from 30% to 100% over 30 seconds
+    intervalRef.current = window.setInterval(() => {
       const elapsed = (Date.now() - startTimeRef.current) / 1000;
-      volumeRef.current = Math.min(1, 0.3 + (0.7 * elapsed) / 30);
-      playSound(soundType, volumeRef.current);
-    };
+      const vol = Math.min(1, 0.3 + (0.7 * elapsed) / 30);
+      setVolume(vol);
 
-    play();
-    // Repeat sound every 2 seconds for continuous alarm
-    intervalRef.current = window.setInterval(play, 2000);
+      // For non-despertador sounds (Web Audio synth), re-trigger every 2s
+      if (soundType !== 'despertador' && elapsed > 0) {
+        playSound(soundType, vol);
+      }
+    }, 2000);
+
+    // Wake Lock to keep screen on while alarm rings
+    let wakeLock: WakeLockSentinel | null = null;
+    if ('wakeLock' in navigator) {
+      navigator.wakeLock.request('screen').then(wl => {
+        wakeLock = wl;
+      }).catch(() => {});
+    }
 
     return () => {
       stopAllSounds();
       if (intervalRef.current) clearInterval(intervalRef.current);
+      if (wakeLock) wakeLock.release().catch(() => {});
     };
   }, [isPlaying, soundType]);
 }

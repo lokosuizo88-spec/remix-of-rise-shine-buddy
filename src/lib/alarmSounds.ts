@@ -8,6 +8,44 @@ export const SOUND_OPTIONS: { value: SoundType; label: string; emoji: string }[]
   { value: 'megafono', label: 'Megáfono', emoji: '📢' },
 ];
 
+// ── HTML5 Audio (primary - works on mobile, loops properly) ──
+let htmlAudio: HTMLAudioElement | null = null;
+
+function playHtmlAudio(volume: number): boolean {
+  try {
+    if (!htmlAudio) {
+      htmlAudio = new Audio('/alarm.wav');
+      htmlAudio.loop = true;
+      htmlAudio.preload = 'auto';
+    }
+    htmlAudio.volume = Math.min(1, Math.max(0, volume));
+    htmlAudio.currentTime = 0;
+    const playPromise = htmlAudio.play();
+    if (playPromise) {
+      playPromise.catch(() => {
+        console.warn('HTML5 Audio blocked, falling back to Web Audio API');
+      });
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function stopHtmlAudio() {
+  if (htmlAudio) {
+    htmlAudio.pause();
+    htmlAudio.currentTime = 0;
+  }
+}
+
+function setHtmlAudioVolume(volume: number) {
+  if (htmlAudio) {
+    htmlAudio.volume = Math.min(1, Math.max(0, volume));
+  }
+}
+
+// ── Web Audio API (fallback for sound variety) ──
 let audioCtx: AudioContext | null = null;
 let activeNodes: AudioScheduledSourceNode[] = [];
 let activeMasterGain: GainNode | null = null;
@@ -27,7 +65,7 @@ function createNoise(ctx: AudioContext, duration: number, gain: number): AudioBu
   return src;
 }
 
-export function stopAllSounds() {
+function stopWebAudio() {
   activeNodes.forEach(n => { try { n.stop(); } catch {} });
   activeNodes = [];
   if (activeMasterGain) {
@@ -36,9 +74,37 @@ export function stopAllSounds() {
   }
 }
 
+// ── Public API ──
+
+/** Stop all alarm sounds */
+export function stopAllSounds() {
+  stopHtmlAudio();
+  stopWebAudio();
+}
+
+/** Update volume without restarting */
+export function setVolume(volume: number) {
+  setHtmlAudioVolume(volume);
+  if (activeMasterGain) {
+    activeMasterGain.gain.value = volume;
+  }
+}
+
+/** 
+ * Play alarm sound. Uses HTML5 Audio (alarm.wav) as primary for reliable 
+ * mobile playback with looping. Falls back to Web Audio synth for variety.
+ */
 export function playSound(type: SoundType, volume: number = 1): void {
-  // Stop previous sounds before playing new ones
-  stopAllSounds();
+  // For the default alarm sound, use HTML5 Audio (better mobile support, loops)
+  if (type === 'despertador') {
+    stopWebAudio();
+    playHtmlAudio(volume);
+    return;
+  }
+
+  // For other sounds, use Web Audio synth but also start HTML5 Audio as backup
+  stopWebAudio();
+  playHtmlAudio(volume * 0.3); // quiet backup
 
   const ctx = getCtx();
   const masterGain = ctx.createGain();
@@ -50,21 +116,6 @@ export function playSound(type: SoundType, volume: number = 1): void {
   const now = ctx.currentTime;
 
   switch (type) {
-    case 'despertador': {
-      for (let i = 0; i < 6; i++) {
-        const osc = ctx.createOscillator();
-        osc.type = 'square';
-        osc.frequency.value = 880;
-        const g = ctx.createGain();
-        g.gain.setValueAtTime(0.6, now + i * 0.25);
-        g.gain.exponentialRampToValueAtTime(0.01, now + i * 0.25 + 0.12);
-        osc.connect(g).connect(masterGain);
-        osc.start(now + i * 0.25);
-        osc.stop(now + i * 0.25 + 0.12);
-        nodes.push(osc);
-      }
-      break;
-    }
     case 'sirena': {
       const osc = ctx.createOscillator();
       osc.type = 'sawtooth';
